@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "268166694444",
+    "project_id": "dailyreminderapp-eedf3",
+    "storage_bucket": "dailyreminderapp-eedf3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:268166694444:android:48c9b0da6119ab0973b389",
+        "android_client_info": {
+          "package_name": "com.example.daily_reminders_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB--CExbAPwYB-lcZbMRg1X7AQOQxXGrQw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:268166694444:android:48d064932a49d95d73b389",
+        "android_client_info": {
+          "package_name": "com.example.flutter_to_do_list"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB--CExbAPwYB-lcZbMRg1X7AQOQxXGrQw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
