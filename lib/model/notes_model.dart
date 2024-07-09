@@ -7,3 +7,4 @@ class Note {
   bool isDon;
   Note(this.id, this.subtitle, this.time, this.image, this.title, this.isDon);
 }
+//
