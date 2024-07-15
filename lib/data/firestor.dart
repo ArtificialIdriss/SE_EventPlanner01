@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_to_do_list/model/notes_model.dart';
-import 'package:uuid/uuid.dart';
+import 'package:flutter_to_do_list/model/events_model.dart'; // Import your Event model
 
 class Firestore_Datasource {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -17,113 +15,94 @@ class Firestore_Datasource {
       return true;
     } catch (e) {
       print(e);
-      return true;
+      return false;
     }
   }
 
-  Future<bool> AddNote(String subtitle, String title, int image) async {
+  Future<bool> addEvent(Event event) async {
     try {
-      var uuid = Uuid().v4();
-      DateTime data = new DateTime.now();
       await _firestore
           .collection('users')
           .doc(_auth.currentUser!.uid)
-          .collection('notes')
-          .doc(uuid)
+          .collection('events')
+          .doc(event.id)
           .set({
-        'id': uuid,
-        'subtitle': subtitle,
-        'isDon': false,
-        'image': image,
-        'time': '${data.hour}:${data.minute}',
-        'title': title,
+        'id': event.id,
+        'name': event.name,
+        'description': event.description,
+        'location': event.location,
+        'startDateTime': event.startDateTime.toIso8601String(),
+        'endDateTime': event.endDateTime.toIso8601String(),
+        'notes': event.notes,
+        'invitees': event.invitees,
       });
       return true;
     } catch (e) {
       print(e);
-      return true;
+      return false;
     }
   }
 
-  List getNotes(AsyncSnapshot snapshot) {
-    try {
-      final notesList = snapshot.data!.docs.map((doc) {
-        final data = doc.data() as Map<String, dynamic>;
-        return Note(
-          data['id'],
-          data['subtitle'],
-          data['time'],
-          data['image'],
-          data['title'],
-          data['isDon'],
-        );
-      }).toList();
-      return notesList;
-    } catch (e) {
-      print(e);
-      return [];
-    }
-  }
-
-  Stream<QuerySnapshot> stream(bool isDone) {
-    return _firestore
-        .collection('users')
-        .doc(_auth.currentUser!.uid)
-        .collection('notes')
-        .where('isDon', isEqualTo: isDone)
-        .snapshots();
-  }
-
-  Future<bool> isdone(String uuid, bool isDon) async {
+  Future<bool> updateEvent(Event event) async {
     try {
       await _firestore
           .collection('users')
           .doc(_auth.currentUser!.uid)
-          .collection('notes')
-          .doc(uuid)
-          .update({'isDon': isDon});
-      return true;
-    } catch (e) {
-      print(e);
-      return true;
-    }
-  }
-
-  Future<bool> Update_Note(
-      String uuid, int image, String title, String subtitle) async {
-    try {
-      DateTime data = new DateTime.now();
-      await _firestore
-          .collection('users')
-          .doc(_auth.currentUser!.uid)
-          .collection('notes')
-          .doc(uuid)
+          .collection('events')
+          .doc(event.id)
           .update({
-        'time': '${data.hour}:${data.minute}',
-        'subtitle': subtitle,
-        'title': title,
-        'image': image,
+        'name': event.name,
+        'description': event.description,
+        'location': event.location,
+        'startDateTime': event.startDateTime.toIso8601String(),
+        'endDateTime': event.endDateTime.toIso8601String(),
+        'notes': event.notes,
+        'invitees': event.invitees,
       });
       return true;
     } catch (e) {
       print(e);
-      return true;
+      return false;
     }
   }
 
-  Future<bool> delet_note(String uuid) async {
+  Future<bool> deleteEvent(String eventId) async {
     try {
       await _firestore
           .collection('users')
           .doc(_auth.currentUser!.uid)
-          .collection('notes')
-          .doc(uuid)
+          .collection('events')
+          .doc(eventId)
           .delete();
       return true;
     } catch (e) {
       print(e);
-      return true;
+      return false;
     }
   }
+
+  List<Event> getEventsFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.docs.map((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+      return Event(
+        id: data['id'],
+        name: data['name'],
+        description: data['description'],
+        location: data['location'],
+        startDateTime: DateTime.parse(data['startDateTime']),
+        endDateTime: DateTime.parse(data['endDateTime']),
+        notes: data['notes'],
+        invitees: List<String>.from(data['invitees']),
+      );
+    }).toList();
+  }
+
+  Stream<List<Event>> streamEvents() {
+    return _firestore
+        .collection('users')
+        .doc(_auth.currentUser!.uid)
+        .collection('events')
+        .snapshots()
+        .map(getEventsFromSnapshot);
+  }
 }
-//

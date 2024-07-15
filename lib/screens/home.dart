@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_to_do_list/const/colors.dart';
-import 'package:flutter_to_do_list/screens/add_note_screen.dart';
-import 'package:flutter_to_do_list/widgets/stream_note.dart';
+import 'package:flutter_to_do_list/screens/add_event_screen.dart';
+import 'package:flutter_to_do_list/widgets/stream_event.dart';
 
 class Home_Screen extends StatefulWidget {
   const Home_Screen({super.key});
@@ -23,7 +23,7 @@ class _Home_ScreenState extends State<Home_Screen> {
         child: FloatingActionButton(
           onPressed: () {
             Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => Add_creen(),
+              builder: (context) => AddEventScreen(),
             ));
           },
           backgroundColor: custom_green,
@@ -47,15 +47,7 @@ class _Home_ScreenState extends State<Home_Screen> {
           },
           child: Column(
             children: [
-              Stream_note(false),
-              Text(
-                'isDone',
-                style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey.shade500,
-                    fontWeight: FontWeight.bold),
-              ),
-              Stream_note(true),
+              Stream_event(),
             ],
           ),
         ),
@@ -63,4 +55,3 @@ class _Home_ScreenState extends State<Home_Screen> {
     );
   }
 }
-//
