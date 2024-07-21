@@ -21,7 +21,7 @@ class AuthenticationRemote extends AuthenticationDatasource {
           .createUserWithEmailAndPassword(
               email: email.trim(), password: password.trim())
           .then((value) {
-        Firestore_Datasource().CreateUser(email);
+        Firestore_Datasource().createUser(email);
       });
     }
   }
