@@ -358,175 +358,207 @@ class _BudgetScreenState extends State<BudgetScreen> {
       }
     }
   }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Budget Screen'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.edit),
-            onPressed: editAllocatedAmount,
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text('Budget Planner'),
+          Row(
+            children: [
+              Text(
+                'Event: ',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(width: 8.0),
+              DropdownButton<String>(
+                value: selectedEventId,
+                items: eventsMap.keys.map((String key) {
+                  return DropdownMenuItem<String>(
+                    value: key,
+                    child: Text(eventsMap[key]!.name),
+                  );
+                }).toList(),
+                onChanged: (newValue) {
+                  setState(() {
+                    selectedEventId = newValue;
+                    fetchBudgetDetails(selectedEventId!);
+                  });
+                },
+              ),
+            ],
           ),
         ],
       ),
-      body: eventsMap.isEmpty
-          ? Center(child: CircularProgressIndicator())
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Remaining Budget: \$${eventsMap[selectedEventId!]?.remainingAmount.toStringAsFixed(2) ?? '0.00'}',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        'Allocated Budget: \$${eventsMap[selectedEventId!]?.allocatedAmount.toStringAsFixed(2) ?? '0.00'}',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 8.0),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Center(
-                          child: Text(
-                            'Expense List',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: addExpense,
-                        child: Text('Add Expense'),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 8.0),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+      actions: [],
+    ),
+    body: eventsMap.isEmpty
+        ? Center(child: CircularProgressIndicator())
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(
-                      flex: 4,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Text(
-                          'Description',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                    Text(
+                      'Remaining Budget: \$${eventsMap[selectedEventId!]?.remainingAmount.toStringAsFixed(2) ?? '0.00'}',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          'Allocated Budget: \$${eventsMap[selectedEventId!]?.allocatedAmount.toStringAsFixed(2) ?? '0.00'}',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Text(
-                        'Amount',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Text(
-                        'Budget After Expense',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: Text(
-                        'Actions',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
+                        SizedBox(width: 16.0),
+                        ElevatedButton(
+                          onPressed: editAllocatedAmount,
+                          child: Text('Edit'),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-                SizedBox(height: 8.0),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: eventsMap[selectedEventId!]?.expenses.length ?? 0,
-                    itemBuilder: (context, index) {
-                      final expenses = eventsMap[selectedEventId!]!.expenses;
-                      double remainingBudget = eventsMap[selectedEventId!]!.allocatedAmount;
-
-                      for (int i = 0; i <= index; i++) {
-                        remainingBudget -= expenses[i].amount;
-                      }
-
-                      final expense = expenses[index];
-                      return ListTile(
-                        contentPadding: EdgeInsets.symmetric(vertical: 4.0),
-                        title: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              flex: 4,
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 8.0),
-                                child: Text(expense.description),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 2,
-                              child: Text(
-                                '\$${expense.amount.toStringAsFixed(2)}',
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                            Expanded(
-                              flex: 2,
-                              child: Text(
-                                '\$${remainingBudget.toStringAsFixed(2)}',
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                            Expanded(
-                              flex: 1,
-                              child: Align(
-                                alignment: Alignment.center,
-                                child: PopupMenuButton<String>(
-                                  onSelected: (value) {
-                                    if (value == 'Edit') {
-                                      editExpense(expense);
-                                    } else if (value == 'Delete') {
-                                      deleteExpense(expense);
-                                    }
-                                  },
-                                  itemBuilder: (BuildContext context) {
-                                    return [
-                                      PopupMenuItem<String>(
-                                        value: 'Edit',
-                                        child: Text('Edit Expense'),
-                                      ),
-                                      PopupMenuItem<String>(
-                                        value: 'Delete',
-                                        child: Text('Delete Expense'),
-                                      ),
-                                    ];
-                                  },
-                                  icon: Icon(Icons.more_vert),
-                                ),
-                              ),
-                            ),
-                          ],
+              ),
+              SizedBox(height: 8.0),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          'Expense List',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: addExpense,
+                      child: Text('Add Expense'),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-    );
-  }
+              ),
+              SizedBox(height: 8.0),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Text(
+                        'Description',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Text(
+                      'Amount',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Text(
+                      'Budget After Expense',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Text(
+                      'Actions',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 8.0),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: eventsMap[selectedEventId!]?.expenses.length ?? 0,
+                  itemBuilder: (context, index) {
+                    final expenses = eventsMap[selectedEventId!]!.expenses;
+                    double remainingBudget = eventsMap[selectedEventId!]!.allocatedAmount;
+
+                    for (int i = 0; i <= index; i++) {
+                      remainingBudget -= expenses[i].amount;
+                    }
+
+                    final expense = expenses[index];
+                    return ListTile(
+                      contentPadding: EdgeInsets.symmetric(vertical: 4.0),
+                      title: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            flex: 4,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: Text(expense.description),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              '\$${expense.amount.toStringAsFixed(2)}',
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              '\$${remainingBudget.toStringAsFixed(2)}',
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: PopupMenuButton<String>(
+                                onSelected: (value) {
+                                  if (value == 'Edit') {
+                                    editExpense(expense);
+                                  } else if (value == 'Delete') {
+                                    deleteExpense(expense);
+                                  }
+                                },
+                                itemBuilder: (BuildContext context) {
+                                  return [
+                                    PopupMenuItem<String>(
+                                      value: 'Edit',
+                                      child: Text('Edit Expense'),
+                                    ),
+                                    PopupMenuItem<String>(
+                                      value: 'Delete',
+                                      child: Text('Delete Expense'),
+                                    ),
+                                  ];
+                                },
+                                icon: Icon(Icons.more_vert),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+  );
+}
 }
